@@ -1,9 +1,5 @@
 // This script will handle communication with the Gemini API.
 
-// IMPORTANT: Replace with your actual Gemini API key
-const GEMINI_API_KEY = 'AIzaSyAiIsihVM4GkZ0iylY25030bwNa_zcpx2A';
-const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
-
 // The fixed prompt part
 const PROMPT_TEMPLATE = `1.运用我给你的单词，写一篇200字的英语文章，标注新词，英文文中不要出现翻译，单独在下面给出全文中文翻译，供我学习英语阅读。
 
@@ -24,41 +20,49 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         const words = request.words.filter(word => word.trim() !== '').join(', ');
         if (!words) {
             sendResponse({ success: false, error: "No words provided." });
-            return true; // Indicates that the response is sent asynchronously
+            return true;
         }
 
-        const fullPrompt = PROMPT_TEMPLATE + words;
-
-        fetch(GEMINI_API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                "contents": [{
-                    "parts": [{
-                        "text": fullPrompt
-                    }]
-                }]
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.candidates && data.candidates.length > 0 && data.candidates[0].content.parts[0].text) {
-                const resultText = data.candidates[0].content.parts[0].text;
-                // Save to history
-                saveToHistory({ words: request.words, result: resultText });
-                sendResponse({ success: true, data: resultText });
-            } else {
-                console.error("API Error Response:", data);
-                sendResponse({ success: false, error: data.error ? data.error.message : "Invalid response from API." });
+        // 动态获取 API Key
+        chrome.storage.local.get('geminiApiKey', (data) => {
+            const GEMINI_API_KEY = data.geminiApiKey || '';
+            if (!GEMINI_API_KEY) {
+                sendResponse({ success: false, error: "please enter Gemini API Key in extension options" });
+                return;
             }
-        })
-        .catch(error => {
-            console.error("Fetch Error:", error);
-            sendResponse({ success: false, error: error.message });
-        });
+            const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+            const fullPrompt = PROMPT_TEMPLATE + words;
 
+            fetch(GEMINI_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    "contents": [{
+                        "parts": [{
+                            "text": fullPrompt
+                        }]
+                    }]
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.candidates && data.candidates.length > 0 && data.candidates[0].content.parts[0].text) {
+                    const resultText = data.candidates[0].content.parts[0].text;
+                    // Save to history
+                    saveToHistory({ words: request.words, result: resultText });
+                    sendResponse({ success: true, data: resultText });
+                } else {
+                    console.error("API Error Response:", data);
+                    sendResponse({ success: false, error: data.error ? data.error.message : "Invalid response from API." });
+                }
+            })
+            .catch(error => {
+                console.error("Fetch Error:", error);
+                sendResponse({ success: false, error: error.message });
+            });
+        });
         return true; // Indicates that the response is sent asynchronously
     }
 });
