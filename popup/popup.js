@@ -1,5 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     const wordInputs = document.getElementById('wordInputs');
+    const form = document.getElementById('wordForm');
+    const resultDiv = document.getElementById('result');
+    const historyBtn = document.getElementById('historyBtn');
     const inputs = [];
 
     // Function to save words to storage
@@ -21,5 +24,23 @@ document.addEventListener('DOMContentLoaded', function() {
             wordInputs.appendChild(input);
             inputs.push(input);
         }
+    });
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent form from actually submitting
+        const words = inputs.map(input => input.value);
+        resultDiv.innerHTML = 'Loading...';
+
+        chrome.runtime.sendMessage({ action: "getDefinition", words: words }, (response) => {
+            if (response && response.success) {
+                resultDiv.innerHTML = marked.parse(response.data);
+            } else {
+                resultDiv.textContent = 'Error: ' + (response ? response.error : 'No response from background script.');
+            }
+        });
+    });
+
+    historyBtn.addEventListener('click', function() {
+        chrome.tabs.create({ url: 'history/history.html' });
     });
 });
