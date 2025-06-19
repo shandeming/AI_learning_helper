@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
         chrome.storage.local.get({ history: [] }, (result) => {
             const history = result.history;
             if (history.length === 0) {
-                historyList.innerHTML = '<p>没有找到历史记录。</p>';
+                historyList.innerHTML = '<p>no history</p>';
                 return;
             }
             historyList.innerHTML = '';
@@ -32,9 +32,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    let confirmClear = false;
     clearBtn.addEventListener('click', function() {
+        if (!confirmClear) {
+            clearBtn.textContent = 'clear history?';
+            confirmClear = true;
+            setTimeout(() => {
+                clearBtn.textContent = 'Clear History';
+                confirmClear = false;
+            }, 2000);
+            return;
+        }
         chrome.storage.local.set({ history: [] }, () => {
-            historyList.innerHTML = '<p>没有找到历史记录。</p>';
+            historyList.innerHTML = '<p>no history</p>';
+            clearBtn.textContent = 'Clear History';
+            confirmClear = false;
         });
     });
 });
