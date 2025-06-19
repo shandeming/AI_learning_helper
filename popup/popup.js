@@ -33,7 +33,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         chrome.runtime.sendMessage({ action: "getDefinition", words: words }, (response) => {
             if (response && response.success) {
-                resultDiv.innerHTML = marked.parse(response.data);
+                // 输出本次输入的10个单词和API返回内容
+                const wordListHtml = `<div style='margin-bottom:8px;'><strong>WORDS: </strong> ${words.map(w => w || '(empty)').join(', ')}</div>`;
+                resultDiv.innerHTML = wordListHtml + marked.parse(response.data);
+                // 删除本地保存的单词
+                chrome.storage.local.remove('savedWords');
             } else {
                 resultDiv.textContent = 'Error: ' + (response ? response.error : 'No response from background script.');
             }
