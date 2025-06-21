@@ -17,7 +17,7 @@ A browser extension designed to help English learners efficiently memorize and p
 2. Open your browser's extensions page (e.g., `chrome://extensions` or `edge://extensions`).
 3. Enable Developer Mode.
 4. Click "Load unpacked" and select the project folder.
-5. Set your API key in the extension's options page.
+5. Set your model and API key in the extension's options page.
 
 ## Usage
 - Click the floating button to open the input window.
