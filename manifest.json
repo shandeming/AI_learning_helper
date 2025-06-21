@@ -3,6 +3,7 @@
   "name": "AI English Learning Helper",
   "version": "1.0",
   "description": "An extension to help learn English words.",
+  "default_locale": "zh_CN",
   "permissions": [
     "storage",
     "activeTab",
