@@ -66,14 +66,18 @@ function getModelHandler(model) {
 
 // Gemini请求
 function requestGemini(words, config, callback) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${config.model}:generateContent?key=${config.apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${config.apiKey}`;
   fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      contents: [
-        { parts: [{ text: PROMPT_TEMPLATE + "\nword list：" + words }] },
-      ],
+      system_instruction: { parts: [{ text: PROMPT_TEMPLATE }] },
+      contents: [{ parts: [{ text: "\nword list：" + words }] }],
+      generation_config: {
+        thinkingConfig: {
+          thinkingBudget: 0,
+        },
+      },
     }),
   })
     .then((res) => res.json())

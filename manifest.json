@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "AI English Learning Helper",
+  "name": "__MSG_extensionName__",
   "version": "1.0",
   "description": "An extension to help learn English words.",
   "default_locale": "zh_CN",
