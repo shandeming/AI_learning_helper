@@ -40,3 +40,7 @@ English learning, vocabulary, AI writing, Gemini, English reading, browser exten
 
 ## License
 MIT
+
+## Follow the Author
+- [Bilibili Account](https://space.bilibili.com/12732048?spm_id_from=333.1007.0.0)
+- [Xiaohongshu Account](https://www.xiaohongshu.com/user/profile/684ce591000000001d022ce8?tab=note&subTab=note)

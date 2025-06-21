@@ -38,3 +38,9 @@
 
 ## 关键词
 英语学习、词汇、AI 写作、Gemini、英文阅读、浏览器扩展、英语助手、Markdown、Edge 扩展、Chrome 扩
+
+
+## 关注作者
+
+- [B站账号](https://space.bilibili.com/12732048?spm_id_from=333.1007.0.0)
+- [小红书账号](https://www.xiaohongshu.com/user/profile/684ce591000000001d022ce8?tab=note&subTab=note)

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "__MSG_extensionName__",
   "version": "1.0",
-  "description": "An extension to help learn English words.",
+  "description": "__MSG_extensionDescription__",
   "default_locale": "zh_CN",
   "permissions": [
     "storage",
