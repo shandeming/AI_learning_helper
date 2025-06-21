@@ -25,8 +25,9 @@ jobs:
             -x "*.DS_Store" \
             -x ".github/*"
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Create Release and Upload Asset
+        uses: softprops/action-gh-release@v2
         with:
-          name: ai-eng-learn
-          path: ai-eng-learn.zip
+          files: ai-eng-learn.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
