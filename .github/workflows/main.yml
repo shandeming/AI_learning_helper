@@ -1,0 +1,32 @@
+name: Auto Zip on Push
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build-zip:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up zip
+        run: sudo apt-get update && sudo apt-get install -y zip
+
+      - name: Create zip archive (exclude files)
+        run: |
+          zip -r ai-eng-learn.zip . \
+            -x "*.git*" \
+            -x "*.md" \
+            -x "*.zip" \
+            -x "*.DS_Store" \
+            -x ".github/*"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-eng-learn
+          path: ai-eng-learn.zip
