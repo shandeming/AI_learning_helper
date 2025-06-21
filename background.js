@@ -16,65 +16,118 @@ const PROMPT_TEMPLATE = `1.运用我给你的单词，写一篇200字的英语�
 7.如果我说继续，则重复生成上一条请求，并尽量减少重复性。`;
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === "getDefinition") {
-        const words = request.words.filter(word => word.trim() !== '').join(', ');
-        if (!words) {
-            sendResponse({ success: false, error: "No words provided." });
-            return true;
-        }
-
-        // 动态获取 API Key
-        chrome.storage.local.get('geminiApiKey', (data) => {
-            const GEMINI_API_KEY = data.geminiApiKey || '';
-            if (!GEMINI_API_KEY) {
-                sendResponse({ success: false, error: "please enter Gemini API Key in extension options" });
-                return;
-            }
-            const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
-            const fullPrompt = PROMPT_TEMPLATE + words;
-
-            fetch(GEMINI_API_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    "contents": [{
-                        "parts": [{
-                            "text": fullPrompt
-                        }]
-                    }]
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.candidates && data.candidates.length > 0 && data.candidates[0].content.parts[0].text) {
-                    const resultText = data.candidates[0].content.parts[0].text;
-                    // Save to history
-                    saveToHistory({ words: request.words, result: resultText });
-                    sendResponse({ success: true, data: resultText });
-                } else {
-                    console.error("API Error Response:", data);
-                    sendResponse({ success: false, error: data.error ? data.error.message : "Invalid response from API." });
-                }
-            })
-            .catch(error => {
-                console.error("Fetch Error:", error);
-                sendResponse({ success: false, error: error.message });
-            });
-        });
-        return true; // Indicates that the response is sent asynchronously
-    }
+  if (request.action === "getDefinition") {
+    handleGetDefinition(request, sendResponse);
+    return true;
+  }
 });
 
-function saveToHistory(item) {
-    chrome.storage.local.get({ history: [] }, (result) => {
-        const history = result.history;
-        history.unshift(item); // Add to the beginning
-        // Optional: Limit history size
-        if (history.length > 50) {
-            history.pop();
-        }
-        chrome.storage.local.set({ history: history });
+// 主调度函数
+function handleGetDefinition(request, sendResponse) {
+  const words = getWordsString(request.words);
+  if (!words) {
+    sendResponse({ success: false, error: "No words provided." });
+    return;
+  }
+  getModelConfig((config) => {
+    if (!config.apiKey) {
+      sendResponse({
+        success: false,
+        error: "please enter API Key in extension options",
+      });
+      return;
+    }
+    getModelHandler(config.model)(words, config, (result) => {
+      if (result.success) {
+        saveToHistory({ words: request.words, result: result.data });
+      }
+      sendResponse(result);
     });
+  });
+}
+
+// 获取模型和API Key
+function getModelConfig(callback) {
+  chrome.storage.local.get(["modelName", "ApiKey"], (data) => {
+    callback({
+      model: data.modelName || "gemini-2.0-flash",
+      apiKey: data.ApiKey || "",
+    });
+  });
+}
+
+// 选择模型处理函数
+function getModelHandler(model) {
+  if (model.startsWith("gemini")) return requestGemini;
+  if (model.startsWith("qwen")) return requestQwen;
+  return (words, config, cb) =>
+    cb({ success: false, error: "Unsupported model." });
+}
+
+// Gemini请求
+function requestGemini(words, config, callback) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${config.model}:generateContent?key=${config.apiKey}`;
+  fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: PROMPT_TEMPLATE + words }] }],
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (text) callback({ success: true, data: text });
+      else
+        callback({
+          success: false,
+          error: data.error?.message || "Invalid response from API.",
+        });
+    })
+    .catch((err) => callback({ success: false, error: err.message }));
+}
+
+// Qwen请求
+function requestQwen(words, config, callback) {
+  fetch(
+    "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${config.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: config.model,
+        input: { prompt: PROMPT_TEMPLATE + words },
+      }),
+    }
+  )
+    .then((res) => res.json())
+    .then((data) => {
+      const text = data?.output?.text;
+      if (text) callback({ success: true, data: text });
+      else
+        callback({
+          success: false,
+          error: data.error?.message || "Invalid response from API.",
+        });
+    })
+    .catch((err) => callback({ success: false, error: err.message }));
+}
+
+// 工具函数
+function getWordsString(wordsArr) {
+  return Array.isArray(wordsArr)
+    ? wordsArr.filter((w) => w.trim()).join(", ")
+    : "";
+}
+
+function saveToHistory(item) {
+  chrome.storage.local.get({ history: [] }, (result) => {
+    const history = result.history;
+    history.unshift(item);
+    if (history.length > 50) history.pop();
+    chrome.storage.local.set({ history });
+  });
 }
