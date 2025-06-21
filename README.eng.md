@@ -1,5 +1,5 @@
+[English](README.eng.md) | [中文](README.zh.md)
 # AI English Learning Helper
-
 A browser extension designed to help English learners efficiently memorize and practice new vocabulary using AI.
 
 ## Features

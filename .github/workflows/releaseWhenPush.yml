@@ -2,9 +2,8 @@ name: Auto Zip on Push
 
 on:
   push:
-    branches:
-      - main
-      - master
+    tags:
+      - "v*"
 
 jobs:
   build-zip:
