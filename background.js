@@ -71,7 +71,9 @@ function requestGemini(words, config, callback) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      contents: [{ parts: [{ text: PROMPT_TEMPLATE + words }] }],
+      contents: [
+        { parts: [{ text: PROMPT_TEMPLATE + "\nword list：" + words }] },
+      ],
     }),
   })
     .then((res) => res.json())
@@ -99,7 +101,7 @@ function requestQwen(words, config, callback) {
       },
       body: JSON.stringify({
         model: config.model,
-        input: { prompt: PROMPT_TEMPLATE + words },
+        input: { prompt: PROMPT_TEMPLATE + "\nword list：" + words },
       }),
     }
   )
