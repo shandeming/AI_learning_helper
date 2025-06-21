@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>英语学习</title>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="popup.css">
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" type="text/css" href="popup.css" />
     <script src="../vendor/marked.min.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <h1>输入 10 个英语单词</h1>
+    <button type="button" id="presetBtn">插入预设</button>
+    <button type="button" id="clearAllBtn">清除全部</button>
     <form id="wordForm">
-        <div id="wordInputs"></div>
-        <button type="submit">提交</button>
+      <div id="wordInputs"></div>
+      <button type="submit">提交</button>
     </form>
     <button id="historyBtn">查看历史</button>
     <div id="result"></div>
     <script src="popup.js"></script>
-</body>
+  </body>
 </html>

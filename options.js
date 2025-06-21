@@ -15,6 +15,9 @@ chrome.storage.local.get("ApiKey", (data) => {
   if (data.ApiKey) {
     document.getElementById("apiKey").value = data.ApiKey;
   }
+});
+
+chrome.storage.local.get("modelName", (data) => {
   if (data.modelName) {
     document.getElementById("modelSelect").value = data.modelName;
   }
