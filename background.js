@@ -60,6 +60,7 @@ function getModelConfig(callback) {
 function getModelHandler(model) {
   if (model.startsWith("gemini")) return requestGemini;
   if (model.startsWith("qwen")) return requestQwen;
+  if (model.startsWith("zhipu")) return requestZhipu;
   return (words, config, cb) =>
     cb({ success: false, error: "Unsupported model." });
 }
@@ -112,6 +113,34 @@ function requestQwen(words, config, callback) {
     .then((res) => res.json())
     .then((data) => {
       const text = data?.output?.text;
+      if (text) callback({ success: true, data: text });
+      else
+        callback({
+          success: false,
+          error: data.error?.message || "Invalid response from API.",
+        });
+    })
+    .catch((err) => callback({ success: false, error: err.message }));
+}
+// 智谱请求
+function requestZhipu(words, config, callback) {
+  fetch("https://open.bigmodel.cn/api/paas/v4/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${config.apiKey}`,
+    },
+    body: JSON.stringify({
+      model: "GLM-4-Flash",
+      messages: [
+        { role: "system", content: PROMPT_TEMPLATE },
+        { role: "user", content: "\nword list：" + words },
+      ],
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      const text = data?.choices?.[0]?.message?.content;
       if (text) callback({ success: true, data: text });
       else
         callback({
