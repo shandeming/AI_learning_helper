@@ -4,11 +4,7 @@
   "version": "1.0",
   "description": "__MSG_extensionDescription__",
   "default_locale": "zh_CN",
-  "permissions": [
-    "storage",
-    "activeTab",
-    "scripting"
-  ],
+  "permissions": ["storage", "activeTab", "scripting"],
   "background": {
     "service_worker": "background.js"
   },
@@ -34,5 +30,13 @@
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  "commands": {
+    "add_selected_word": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y"
+      },
+      "description": "将选中文本加入单词列表"
+    }
   }
 }

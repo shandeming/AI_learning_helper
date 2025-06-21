@@ -1,6 +1,5 @@
 // This script will handle communication with the Gemini API.
 
-// The fixed prompt part
 const PROMPT_TEMPLATE = `1.运用我给你的单词，写一篇200字的英语文章，标注新词，英文文中不要出现翻译，单独在下面给出全文中文翻译，供我学习英语阅读。
 
 2.高频重复新词：同一单词可以出现多次，尽量用不同的中文含义，以便记住单词的多种翻译。
@@ -19,6 +18,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "getDefinition") {
     handleGetDefinition(request, sendResponse);
     return true;
+  }
+});
+
+// 监听快捷键命令
+chrome.commands.onCommand.addListener((command) => {
+  if (command === "add_selected_word") {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id, { action: "addSelectedWord" });
+    });
   }
 });
 
@@ -161,8 +169,8 @@ function getWordsString(wordsArr) {
 function saveToHistory(item) {
   chrome.storage.local.get({ history: [] }, (result) => {
     const history = result.history;
+    item.id = Date.now(); // 唯一 id
     history.unshift(item);
-    if (history.length > 50) history.pop();
     chrome.storage.local.set({ history });
   });
 }
