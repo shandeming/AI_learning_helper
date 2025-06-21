@@ -22,8 +22,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 entry.className = 'history-entry';
                 const words = item.words ? item.words.join(', ') : '';
                 entry.innerHTML = `
-                    <div><strong>Words:</strong> ${words}</div>
-                    <div><strong>Result:</strong></div>
+                    <div><strong>单词:</strong> ${words}</div>
+                    <div><strong>结果:</strong></div>
                     <div class="history-result">${window.marked.parse(item.result)}</div>
                     <hr>
                 `;
